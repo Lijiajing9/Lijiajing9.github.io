@@ -4,7 +4,7 @@ agent使用情况汇报
 本项目展示我使用多款AI Agent辅助课程学习，并利用GitHub Pages搭建静态网站。
 
 ## TRAE
-Train是代码运行工具，代码执行能力较强，可以直接运行Python代码，用于调试程序。
+TRAE是代码运行工具，代码执行能力较强，可以直接运行Python代码，用于调试程序。
 
 ## WorkBuddy
 借助WorkBuddy学习静态网站搭建，向它请教网站制作教程，理解GitHub Pages网站的底层原理，掌握从仓库创建到网页发布的完整流程。

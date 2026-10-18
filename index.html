@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 使用情况汇报 · Lijiajing9</title>
+
+<style>
+/* ============================================================
+   设计变量：改这里，全站配色一起变
+   蓝绿清新：青绿 #0d9488 + 天蓝 #0284c7
+   ============================================================ */
+:root {
+  --teal:       #0d9488;
+  --teal-deep:  #0f766e;
+  --teal-bg:    #f0fdfa;
+  --blue:       #0284c7;
+  --blue-bg:    #f0f9ff;
+  --bg:         #f8fafc;
+  --card:       #ffffff;
+  --line:       #e2e8f0;
+  --ink:        #0f172a;
+  --ink-2:      #475569;
+  --ink-3:      #94a3b8;
+  --radius:     16px;
+  --shadow:     0 1px 2px rgba(15,23,42,.04), 0 10px 30px -14px rgba(15,23,42,.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+               "Microsoft YaHei", "Hiragino Sans GB", "Segoe UI", sans-serif;
+  line-height: 1.8;
+  font-size: 16px;
+  padding: 0 20px;
+}
+
+/* ============ 顶部标题区 ============ */
+.header {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 70px 0 44px;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--teal-bg);
+  color: var(--teal-deep);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 36px;
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  margin-bottom: 16px;
+}
+
+/* 渐变文字 */
+.header h1 .grad {
+  background: linear-gradient(100deg, var(--teal) 10%, var(--blue) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header .lead {
+  font-size: 16.5px;
+  color: var(--ink-2);
+  max-width: 520px;
+  margin: 0 auto 24px;
+}
+
+.meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+.meta .who { color: var(--ink-2); font-weight: 600; }
+
+.meta .dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+/* ============ 内容容器 ============ */
+.wrap {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 72px;
+}
+
+.section { margin-bottom: 48px; }
+
+.section-title {
+  font-size: 21px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding-left: 14px;
+  border-left: 4px solid var(--teal);
+  line-height: 1.45;
+}
+
+.section-desc {
+  font-size: 14px;
+  color: var(--ink-3);
+  padding-left: 18px;
+  margin-bottom: 22px;
+}
+
+/* ============ 总结引言块 ============ */
+.quote {
+  position: relative;
+  background: linear-gradient(135deg, var(--teal-bg) 0%, #eff6ff 100%);
+  border: 1px solid #d6ece9;
+  border-radius: var(--radius);
+  padding: 30px 32px;
+  overflow: hidden;
+}
+
+.quote::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--teal), var(--blue));
+}
+
+.quote p {
+  color: #134e4a;
+  font-size: 16px;
+  line-height: 1.95;
+}
+
+/* ============ 工具卡片 ============ */
+.tools {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tool {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 卡片左上角的渐变装饰条 */
+.tool::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--blue));
+  opacity: .85;
+}
+
+/* 工具头部：图标 + 名称 + 定位标签 */
+.tool-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+/* 圆形图标底 */
+.tool-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* 三个工具用不同渐变，视觉上能区分 */
+.tool:nth-child(1) .tool-icon { background: linear-gradient(135deg, #0d9488, #14b8a6); }
+.tool:nth-child(2) .tool-icon { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+.tool:nth-child(3) .tool-icon { background: linear-gradient(135deg, #0f766e, #0284c7); }
+.tool:nth-child(4) .tool-icon { background: linear-gradient(135deg, #0891b2, #22d3ee); }
+
+.tool-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+/* 定位标签：说明这个工具是"干什么用的" */
+.tool-tag {
+  margin-left: auto;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--blue-bg);
+  color: var(--blue);
+  white-space: nowrap;
+}
+
+/* 工具说明正文 */
+.tool p {
+  font-size: 15.5px;
+  color: var(--ink-2);
+  line-height: 1.85;
+}
+
+.tool p + p { margin-top: 10px; }
+
+/* 使用场景小列表 */
+.uses {
+  list-style: none;
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.uses li {
+  font-size: 13.5px;
+  color: var(--teal-deep);
+  background: var(--teal-bg);
+  border: 1px solid #d6ece9;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+/* ============ 截图区 ============ */
+.shot {
+  margin-bottom: 30px;
+}
+
+.shot:last-child { margin-bottom: 0; }
+
+.shot-frame {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px;
+  overflow: hidden;
+}
+
+.shot-frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+  background: #f1f5f9;
+  min-height: 120px;
+}
+
+/* 图片加载失败时的提示 */
+.shot-frame.broken {
+  position: relative;
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+  background: #f8fafc;
+}
+
+.shot-frame.broken img { display: none; }
+
+.shot-frame.broken::after {
+  content: "截图待补充";
+  color: var(--ink-3);
+  font-size: 14px;
+}
+
+.shot figcaption {
+  margin-top: 12px;
+  padding-left: 4px;
+  font-size: 14.5px;
+  color: var(--ink-2);
+  line-height: 1.75;
+}
+
+.shot-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: var(--blue-bg);
+  color: var(--blue);
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+
+/* ============ 通用卡片 ============ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 30px;
+}
+
+.card p {
+  color: var(--ink-2);
+  font-size: 15.5px;
+  line-height: 1.9;
+}
+
+.card p + p { margin-top: 15px; }
+
+/* ============ 页脚 ============ */
+.footer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px 0 54px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--ink-3);
+  line-height: 2;
+}
+
+/* ============ 手机适配 ============ */
+@media (max-width: 780px) {
+  body { padding: 0 16px; font-size: 15px; }
+
+  .header { padding: 42px 0 30px; }
+  .header h1 { font-size: 25px; }
+  .header .lead { font-size: 15px; }
+
+  .section-title { font-size: 18.5px; }
+
+  .quote { padding: 24px 20px; }
+
+  .tool { padding: 22px 20px; }
+
+  /* 手机上标签换行到下一行，不然挤压工具名 */
+  .tool-tag { margin-left: 0; }
+
+  .card { padding: 22px 20px; }
+
+  .shot-frame { padding: 6px; }
+  .shot figcaption { font-size: 14px; }
+}
+
+/* 尊重系统"减少动态效果"设置 */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ============ 顶部 ============ -->
+<header class="header">
+  <span class="eyebrow">人工智能课程作业</span>
+
+  <h1>Agent <span class="grad">使用情况</span>汇报</h1>
+
+  <p class="lead">
+    记录我在课程学习中实际使用过的几款 AI Agent 工具，以及它们各自帮我解决了什么问题。
+  </p>
+
+  <div class="meta">
+    <span class="who">Lijiajing9</span>
+    <span class="dot"></span>
+    <span>数据科学与大数据技术</span>
+    <span class="dot"></span>
+    <span>2026 年 10 月</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ 一、总体情况 ============ -->
+  <section class="section">
+    <h2 class="section-title">总体情况</h2>
+    <p class="section-desc">先说结论，再逐个展开</p>
+
+    <div class="quote">
+      <p>
+        本次项目中，我向 WorkBuddy 请教网站搭建方法，同时上网检索各类 Agent 工具的下载与使用方式，
+        循序渐进地接触、学习这些陌生技术领域。我深刻体会到，Agent 工具能为日常学习提供有力支持，
+        在编程练习、习题解析、项目搭建等场景发挥重要作用。
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 二、四个工具 ============ -->
+  <section class="section">
+    <h2 class="section-title">我用过哪些工具</h2>
+    <p class="section-desc">按使用频率从高到低排列，每个工具附上我的实际用法</p>
+
+    <div class="tools">
+
+      <!-- 工具 1：WorkBuddy -->
+      <article class="tool">
+        <div class="tool-head">
+          <div class="tool-icon">W</div>
+          <div class="tool-name">WorkBuddy</div>
+          <span class="tool-tag">项目搭建 · 主力</span>
+        </div>
+        <p>
+          我主要用它来学习静态网站搭建。从最基础的“网站是由什么组成的”开始问起，
+          到理解 GitHub Pages 的运行原理，再到把仓库创建、文件上传、开启发布这一整套流程走通，
+          都是靠它一步步带着我做的。
+        </p>
+        <p>
+          它和其他工具最大的不同是：它不只会回答问题，还能直接帮我创建文件、修改代码、验证效果。
+          我做这个汇报页面的时候，就是它帮我把文字和截图排成网页的。
+        </p>
+        <ul class="uses">
+          <li>网站搭建</li>
+          <li>GitHub 原理理解</li>
+          <li>文件与代码修改</li>
+        </ul>
+      </article>
+
+      <!-- 工具 2：豆包 -->
+      <article class="tool">
+        <div class="tool-head">
+          <div class="tool-icon">豆</div>
+          <div class="tool-name">豆包</div>
+          <span class="tool-tag">日常学习 · 高频</span>
+        </div>
+        <p>
+          这是我日常用得最多的工具。遇到陌生知识点，我会先把截图丢给它做图片分析，
+          让它告诉我这是什么、在哪里操作、下一步该点哪个按钮——很多界面上的术语，
+          光看文字说明根本看不懂，看截图就明白了。
+        </p>
+        <p>
+          除此之外，它也是我排查代码报错的主要帮手。Python 编程作业报错的时候，
+          我把错误信息贴过去，它会解释这个错误在说什么、为什么会发生、应该怎么改。
+          高数习题卡住的时候，我也会让它把解题步骤一步步拆开讲，而不是直接给答案。
+        </p>
+        <ul class="uses">
+          <li>截图分析</li>
+          <li>代码报错排查</li>
+          <li>Python 作业</li>
+          <li>高数习题拆解</li>
+        </ul>
+      </article>
+
+      <!-- 工具 3：Trae -->
+      <article class="tool">
+        <div class="tool-head">
+          <div class="tool-icon">T</div>
+          <div class="tool-name">Trae</div>
+          <span class="tool-tag">代码开发</span>
+        </div>
+        <p>
+          Trae 是一个 AI 编程工具，我主要用它来做代码相关的任务。它的特点是能直接打开我的项目文件夹，
+          在里面读写文件、执行代码，所以比起纯聊天式的工具，它更适合处理“需要真正跑起来”的事情。
+        </p>
+        <p>
+          我用它做过 Python 代码的调试——把程序交给它运行，看它报什么错、卡在哪一步，
+          然后让它针对性修改。它的 Agent 模式可以自己规划步骤、连续执行多个操作，
+          这一点是我第一次接触时觉得最新鲜的地方。
+        </p>
+        <ul class="uses">
+          <li>Python 代码调试</li>
+          <li>项目文件读写</li>
+          <li>Agent 多步执行</li>
+        </ul>
+      </article>
+
+      <!-- 工具 4：DeepSeek -->
+      <article class="tool">
+        <div class="tool-head">
+          <div class="tool-icon">D</div>
+          <div class="tool-name">DeepSeek</div>
+          <span class="tool-tag">推理 · 备选</span>
+        </div>
+        <p>
+          我在查资料的过程中了解到这个工具，它的网页版可以免费使用，不需要付费也不用绑卡。
+          它的“深度思考”模式会把推理过程完整展示出来，遇到需要一步步推导的题目时，
+          看它的思考过程对我理解思路很有帮助。
+        </p>
+        <p>
+          我在数据科学与大数据技术专业学习，经常需要处理逻辑和计算类的问题，
+          这类任务它表现不错。目前我主要把它作为豆包之外的一个备选，
+          不同工具给出不同思路，对比着看反而更容易想明白。
+        </p>
+        <ul class="uses">
+          <li>推理过程展示</li>
+          <li>逻辑与计算题</li>
+          <li>免费网页版</li>
+        </ul>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ 三、使用截图 ============ -->
+  <section class="section">
+    <h2 class="section-title">使用截图</h2>
+    <p class="section-desc">我在实际使用这些工具时留下的记录</p>
+
+    <div class="card">
+
+      <figure class="shot">
+        <div class="shot-frame">
+          <img
+            src="https://Lijiajing9.github.io/jiajing/jiajing.png"
+            alt="豆包指导创建 GitHub 仓库的对话截图"
+            loading="lazy">
+        </div>
+        <figcaption>
+          <span class="shot-tag">图 1</span>
+          遇到完全陌生的 GitHub 界面时，我把页面截图发给豆包做图片分析。
+          它会逐项告诉我每个空该填什么、哪些是必须的，比我自己瞎点要快得多。
+        </figcaption>
+      </figure>
+
+      <figure class="shot">
+        <div class="shot-frame">
+          <img
+            src="https://Lijiajing9.github.io/jiajing/jia.png"
+            alt="Trae 的 Agent 界面截图"
+            loading="lazy">
+        </div>
+        <figcaption>
+          <span class="shot-tag">图 2</span>
+          这是 Trae 的界面。它会先让我指定一个工作目录，然后在这个目录里读写文件、执行命令。
+          这种“进到项目里干活”的方式，和我之前用过的纯聊天工具差别很大。
+        </figcaption>
+      </figure>
+
+      <figure class="shot">
+        <div class="shot-frame">
+          <img
+            src="https://Lijiajing9.github.io/jiajing/jiajin.png"
+            alt="WorkBuddy 对话界面截图"
+            loading="lazy">
+        </div>
+        <figcaption>
+          <span class="shot-tag">图 3</span>
+          这是 WorkBuddy 帮我整理这份汇报页面的过程。我把文字和图片链接交给它，
+          它负责排版，同时会指出哪些地方还需要我自己补充内容。
+        </figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- ============ 四、体会 ============ -->
+  <section class="section">
+    <h2 class="section-title">用下来的体会</h2>
+
+    <div class="card">
+      <p>
+        <strong>第一，这些工具没有一个能替我“把作业做完”。</strong>
+        它们能在我完全不懂的情况下帮我迈出第一步，但仓库叫什么名字、截图放哪一张、
+        哪句话能代表我的真实想法，这些还是得我自己决定。
+      </p>
+      <p>
+        <strong>第二，会提问比会用工具更重要。</strong>
+        同一句话问得含糊，它就给你一堆泛泛的说法；把具体报错、具体界面截图、
+        具体想达成什么效果说清楚，它给出的东西才有用。这个差别我试了很多次才体会到。
+      </p>
+      <p>
+        <strong>第三，不同工具适合不同的事。</strong>
+        需要看懂界面、解释概念，我用豆包；需要真的改文件、跑程序，我用 Trae 和 WorkBuddy；
+        需要一步步推导的题，我用 DeepSeek 的深度思考。没有哪个是“最好”的，
+        关键是知道什么情况该找谁。
+      </p>
+      <p>
+        对我来说，这次最大的收获不是做出了一个网页，而是知道了一件事：
+        <strong>遇到完全陌生的领域时，我不再只能干等着别人教我，而是可以自己先动手试一试。</strong>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>人工智能课程作业 · 2026 年 10 月</p>
+  <p>网页由 Agent 辅助排版，使用情况与判断均由本人完成</p>
+</footer>
+
+<script>
+/* 图片加载失败时，给外框加 .broken 类显示提示，而不是破图标 */
+document.querySelectorAll('.shot-frame img').forEach(function (img) {
+  if (img.complete && img.naturalWidth > 0) return;
+  img.addEventListener('error', function () {
+    img.closest('.shot-frame').classList.add('broken');
+  });
+});
+
+/* 让工具图标的字母垂直居中修正：汉字比英文略低，微调一下 */
+</script>
+
+</body>
+</html>

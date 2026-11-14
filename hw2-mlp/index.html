@@ -6,166 +6,300 @@
 <title>作业二 · MLP 学习参数的实现与可视化</title>
 <style>
   :root{
-    --teal:#0d9488; --teal-light:#f0fdfa; --blue:#0284c7; --blue-light:#f0f9ff;
-    --ink:#0f172a; --ink-soft:#475569; --bg:#f8fafc; --card:#ffffff;
-    --line:#e2e8f0; --amber:#e6a817; --red:#c0392b;
+    --ink:#141414; --ink-2:#4a4a4a; --ink-3:#8a8a8a;
+    --paper:#ffffff; --bg:#f4f3f0; --line:#d9d7d2; --line-soft:#e8e6e1;
+    --tape:rgba(160,158,152,.28);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
-    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
-    background:var(--bg); color:var(--ink); line-height:1.75;
+    background:var(--bg); color:var(--ink);
+    font-family:"SimSun","Songti SC","STSong",serif;
+    line-height:1.95; font-size:16.5px;
   }
-  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  code, pre, .mono{font-family:Consolas,"Courier New",monospace}
+  code.inline{background:#efedea;border:1px solid var(--line-soft);border-radius:4px;
+    padding:1px 7px;font-size:.85em;font-family:Consolas,monospace}
+
+  /* ============ 顶部：一张"实验记录纸" ============ */
   header{
-    background:linear-gradient(135deg,var(--teal) 0%,var(--blue) 100%);
-    color:#fff; padding:56px 0 44px;
+    background:var(--paper); border-bottom:1px solid var(--line);
+    padding:64px 0 46px; position:relative; overflow:hidden;
   }
-  header h1{font-size:1.9rem;font-weight:700;letter-spacing:.5px}
-  header p{opacity:.92;margin-top:10px;font-size:.98rem}
-  .badge{
-    display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
-    border-radius:999px;padding:3px 14px;font-size:.82rem;margin-right:8px;margin-top:14px;
+  .kicker{
+    display:inline-block; font-size:.85rem; letter-spacing:.35em;
+    color:var(--ink-2); border:1px solid var(--ink); border-radius:999px;
+    padding:4px 18px 4px 22px; margin-bottom:22px; background:#fff;
   }
-  section{margin-top:44px}
+  header h1{font-size:2rem;font-weight:700;letter-spacing:.06em;line-height:1.5}
+  header .sub{color:var(--ink-2);margin-top:14px;font-size:1.02rem}
+  .meta{margin-top:20px;color:var(--ink-3);font-size:.9rem;letter-spacing:.05em}
+  .meta b{color:var(--ink-2);font-weight:400}
+  nav.toc{margin-top:26px;font-size:.9rem;color:var(--ink-2)}
+  nav.toc a{color:var(--ink-2);text-decoration:none;margin-right:16px;
+    border-bottom:1px dashed var(--ink-3);padding-bottom:2px}
+  nav.toc a:hover{color:#000;border-bottom-color:#000}
+
+  /* ============ 贴纸 ============ */
+  .sticker{position:absolute;pointer-events:none;opacity:.9}
+  .tape{
+    position:absolute;width:110px;height:30px;background:var(--tape);
+    transform:rotate(-6deg);top:-14px;left:26px;border-left:1px dashed rgba(0,0,0,.12);
+    border-right:1px dashed rgba(0,0,0,.12);
+  }
+  .tape.r{left:auto;right:30px;transform:rotate(5deg)}
+
+  /* ============ 正文板块 ============ */
+  section{margin-top:56px}
   h2{
-    font-size:1.3rem;color:var(--teal);padding-left:14px;position:relative;margin-bottom:18px;
+    font-size:1.35rem;letter-spacing:.12em;margin-bottom:6px;
+    display:flex;align-items:center;gap:14px;
   }
-  h2::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:5px;border-radius:3px;
-    background:linear-gradient(var(--teal),var(--blue));}
-  h3{font-size:1.05rem;margin:20px 0 10px;color:var(--ink)}
+  h2 .no{
+    flex:none;width:40px;height:40px;border:2px solid var(--ink);border-radius:50% 46% 52% 48%;
+    display:flex;align-items:center;justify-content:center;font-size:1.05rem;
+    background:#fff;transform:rotate(-3deg);
+  }
+  h2 + .h2sub{color:var(--ink-3);font-size:.88rem;margin-bottom:20px;letter-spacing:.05em}
+  h3{font-size:1.05rem;margin:24px 0 12px;letter-spacing:.06em}
+  h3::before{content:"◆ ";color:var(--ink-3);font-size:.8em;vertical-align:2px}
+
   .card{
-    background:var(--card);border:1px solid var(--line);border-radius:14px;
-    padding:22px 24px;margin-bottom:18px;box-shadow:0 2px 8px rgba(26,127,90,.06);
+    background:var(--paper);border:1px solid var(--line);border-radius:4px;
+    padding:26px 30px;margin-bottom:22px;position:relative;
+    box-shadow:0 1px 2px rgba(0,0,0,.05);
   }
-  ul,ol{padding-left:22px}
-  li{margin:6px 0}
-  .req{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
-  .req .no{
-    flex:none;width:26px;height:26px;border-radius:50%;background:var(--teal-light);
-    color:var(--teal);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;
-    margin-top:3px;
+  .card .tape{width:90px;height:24px}
+
+  ul,ol{padding-left:24px}
+  li{margin:8px 0}
+
+  /* 课堂引入引用块 */
+  blockquote{
+    border-left:3px solid var(--ink);background:var(--paper);
+    margin:0 0 22px;padding:20px 26px;position:relative;
+    font-size:1.02rem;color:var(--ink);
   }
-  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.94rem}
+  blockquote .who{display:block;margin-top:10px;color:var(--ink-3);font-size:.85rem}
+
+  /* 新生理解 vs 严谨解释 */
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
+  @media(max-width:640px){.pair{grid-template-columns:1fr}}
+  .pair .side{
+    background:var(--paper);border:1px solid var(--line);border-radius:4px;
+    padding:18px 20px;font-size:.95rem;position:relative;
+  }
+  .pair .side .tag{
+    display:inline-block;font-size:.78rem;letter-spacing:.2em;color:#fff;
+    background:var(--ink);padding:3px 12px;border-radius:2px;margin-bottom:10px;
+  }
+  .pair .side.formal .tag{background:#fff;color:var(--ink);border:1px solid var(--ink)}
+
+  /* 表格 */
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.93rem;background:#fff}
   th,td{border:1px solid var(--line);padding:9px 12px;text-align:center}
-  th{background:var(--teal-light);color:var(--ink);font-weight:600}
-  tr:nth-child(even) td{background:#fbfdfc}
+  th{background:#efedea;font-weight:700;letter-spacing:.08em}
+
+  /* 代码块 */
   pre{
-    background:#10241c;color:#d7efe3;border-radius:12px;padding:18px 20px;
-    overflow-x:auto;font-size:.85rem;line-height:1.6;margin:12px 0;
-    font-family:Consolas,"JetBrains Mono",monospace;
+    background:#1c1c1c;color:#e8e6e1;border-radius:6px;padding:18px 20px;
+    overflow-x:auto;font-size:.82rem;line-height:1.65;margin:14px 0;
   }
-  code.inline{background:var(--teal-light);color:var(--teal);border-radius:5px;
-    padding:1px 7px;font-size:.9em;font-family:Consolas,monospace}
-  pre .cm{color:#7fae99}
-  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0}
-  .kv .item{background:var(--blue-light);border-radius:10px;padding:12px 16px;text-align:center}
-  .kv .item b{display:block;font-size:1.25rem;color:var(--blue)}
-  .kv .item span{font-size:.82rem;color:var(--ink-soft)}
-  figure{margin:20px 0;text-align:center}
-  figure img{max-width:100%;border:1px solid var(--line);border-radius:12px;box-shadow:0 3px 12px rgba(0,0,0,.07)}
-  figcaption{font-size:.87rem;color:var(--ink-soft);margin-top:8px}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+
+  /* 结果速览 */
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:16px 0}
+  .kv .item{background:#fff;border:1px solid var(--line);border-radius:4px;
+    padding:14px 10px;text-align:center;position:relative}
+  .kv .item b{display:block;font-size:1.3rem;font-weight:700}
+  .kv .item span{font-size:.8rem;color:var(--ink-3);letter-spacing:.1em}
+
+  /* 图 */
+  figure{margin:22px 0;text-align:center;position:relative}
+  figure img{max-width:100%;border:1px solid var(--line);background:#fff;padding:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08)}
+  figcaption{font-size:.87rem;color:var(--ink-2);margin-top:10px;text-align:left;
+    padding:0 6px;line-height:1.8}
+
   .tip{
-    background:var(--teal-light);border-left:4px solid var(--teal);
-    border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;font-size:.94rem;
+    background:#efedea;border-left:3px solid var(--ink);
+    padding:14px 18px;margin:16px 0;font-size:.94rem;
   }
   .warn{
-    background:#fdf6ec;border-left:4px solid var(--amber);
-    border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;font-size:.94rem;
+    background:#fff;border:1.5px dashed var(--ink);
+    padding:16px 20px;margin:16px 0;font-size:.94rem;position:relative;
   }
-  .net{display:block;margin:0 auto;max-width:100%}
+  .warn b{letter-spacing:.08em}
+
+  /* PyCharm 步骤 */
+  .steps{counter-reset:step;padding-left:0}
+  .steps li{list-style:none;position:relative;padding-left:44px;margin:14px 0}
+  .steps li::before{
+    counter-increment:step;content:counter(step);
+    position:absolute;left:0;top:2px;width:28px;height:28px;
+    border:1.6px solid var(--ink);border-radius:50% 44% 52% 46%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.9rem;transform:rotate(-4deg);background:#fff;
+  }
+
   footer{
-    margin-top:56px;border-top:1px solid var(--line);padding:26px 0 40px;
-    text-align:center;color:var(--ink-soft);font-size:.86rem;
+    margin-top:70px;border-top:1px solid var(--line);background:var(--paper);
+    padding:30px 0 44px;text-align:center;color:var(--ink-2);font-size:.86rem;
+    position:relative;
   }
-  .navtop{display:flex;gap:16px;flex-wrap:wrap;margin-top:26px;font-size:.9rem}
-  .navtop a{color:#fff;opacity:.9;text-decoration:none;border-bottom:1px dashed rgba(255,255,255,.6)}
+  footer a{color:var(--ink);border-bottom:1px dashed var(--ink-3);text-decoration:none}
 </style>
 </head>
 <body>
 
 <header>
+  <!-- 贴纸：胶带 + 手绘星 + 箭头 -->
+  <div class="tape"></div>
+  <div class="tape r"></div>
+  <svg class="sticker" style="right:6%;top:52px;transform:rotate(10deg)" width="70" height="70" viewBox="0 0 70 70">
+    <path d="M35 6 L41 27 L63 27 L45 40 L52 62 L35 48 L18 62 L25 40 L7 27 L29 27 Z"
+          fill="none" stroke="#141414" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M30 32 l5 5 l9 -11" fill="none" stroke="#141414" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <svg class="sticker" style="right:16%;bottom:14px;transform:rotate(-8deg)" width="120" height="46" viewBox="0 0 120 46">
+    <path d="M4 38 C 30 10, 62 44, 116 12" fill="none" stroke="#141414" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M104 8 L118 11 L108 22" fill="none" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
   <div class="wrap">
-    <h1>作业二 · 多层感知机（MLP）学习参数的实现与可视化</h1>
-    <p>用 2-2-1 的三层网络解决 XOR（异或）问题 —— 亲手实现前向传播、反向传播与 Adam 优化</p>
-    <span class="badge">人工智能课程作业</span>
-    <span class="badge">数据科学与大数据技术</span>
-    <span class="badge">2026 年 11 月</span>
-    <div class="navtop">
-      <a href="../">← 返回作业一（Agent 使用情况汇报）</a>
-      <a href="#req">作业要求</a>
+    <span class="kicker">人工智能课程作业 · 二</span>
+    <h1>多层感知机学习参数的<br>实现与可视化</h1>
+    <p class="sub">用 2-2-1 的网络解决 XOR 问题：前向传播、反向传播、Adam 更新，全部亲手写一遍</p>
+    <div class="meta"><b>李佳静</b> · 数据科学与大数据技术 · 2026 年 11 月</div>
+    <nav class="toc">
+      <a href="#class">课堂引入</a>
+      <a href="#req">要求拆解</a>
       <a href="#theory">原理</a>
       <a href="#code">实现</a>
       <a href="#result">结果</a>
       <a href="#viz">可视化</a>
-      <a href="#pitfall">踩坑记录</a>
-    </div>
+      <a href="#views">两种理解</a>
+      <a href="#pitfall">踩坑</a>
+    </nav>
   </div>
 </header>
 
 <div class="wrap">
 
-<!-- ================= 作业要求 ================= -->
-<section id="req">
-  <h2>一、老师要求的拆解</h2>
+<!-- ============ 课堂引入 ============ -->
+<section id="class">
+  <h2><span class="no">引</span>课上老师讲了什么</h2>
+  <p class="h2sub">先把课堂笔记里最关键的一段话放在最前面，整个作业就是围绕它展开的。</p>
+  <blockquote>
+    老师先在二维平面上画了一条直线，怎么挪、怎么转，都<b>没法把 XOR 的四个点分成两类</b>——
+    这不是线没画好，而是这样一条线在数学上根本不存在。所以单层网络在这里"死路一条"，
+    <b>必须引入多层结构</b>：先让隐层把点"搬个位置"，换到一个新的空间里，再画线就分得开了。
+    <span class="who">—— 课堂笔记 · 第一篇第 15 节 MLP 部分</span>
+  </blockquote>
   <div class="card">
-    <p>先把老师 PPT（第 85、88 页）的作业要求整理成四条，做完每一条都能对上：</p>
-    <div class="req"><div class="no">1</div><div><b>任务</b>：用多层网络解决 XOR 问题。单个感知机解决不了，因为 XOR 的 4 个样本点在原空间里"同类点交错"，一条直线分不开。</div></div>
-    <div class="req"><div class="no">2</div><div><b>结构</b>：2 个输入 → 2 个 sigmoid 隐层单元（h₁、h₂）→ 1 个输出。关键在隐层：它把 (x₁,x₂) 映射到 (h₁,h₂) 特征空间后，XOR 变得<b>线性可分</b>。</div></div>
-    <div class="req"><div class="no">3</div><div><b>训练配置</b>：4 个 XOR 样本全部训练；<b>二元交叉熵损失 + Adam 优化器，学习率 0.03，训练 300 轮</b>；输出概率 &gt; 0.5 判为类别 1。</div></div>
-    <div class="req"><div class="no">4</div><div><b>原理四步</b>：前向计算（输入沿连接权重层层计算得到预测）→ 计算损失（比较预测与正确标签，衡量当前模型的误差）→ 反向传播（用链式法则求各层权重对损失的影响）→ 参数更新（Adam 依据梯度调整权重，梯度本身不更新）。</div></div>
+    <span class="tape"></span>
+    <p>这句话其实就是整个作业的"题眼"：<b>二维平面上解决不了的，不是靠把线画得更巧，而是靠换一个空间。</b>
+    作业要求的 2-2-1 网络，前面那个"2"就是用来搬位置的隐层，后面那个"1"才是真正画线分类的输出层。</p>
   </div>
 </section>
 
-<!-- ================= 原理 ================= -->
-<section id="theory">
-  <h2>二、为什么隐层能"救活"XOR？</h2>
+<!-- ============ 要求拆解 ============ -->
+<section id="req">
+  <h2><span class="no">一</span>老师的要求，拆成四条</h2>
+  <p class="h2sub">对照 PPT 第 85、88 页整理，每条做完都能对上。</p>
   <div class="card">
-    <p>原始输入空间里，y=0 的点在 (0,0) 和 (1,1)，y=1 的点在 (0,1) 和 (1,0) —— 在一张图上画出来是<b>对角交错</b>的，任何一条直线都不可能把两类分开，这就是"线性不可分"。</p>
-    <p>隐层做的事：让 h₁ 学成一个"近似 OR"（只要 x₁ 或 x₂ 有一个为 1 就激活），让 h₂ 学成一个"近似 AND"（只有 x₁ 且 x₂ 都为 1 才激活）。这样 4 个点被映射到新的 (h₁,h₂) 平面上：</p>
+    <span class="tape r"></span>
+    <ol>
+      <li><b>任务</b>：用多层感知机解决 XOR 问题，并展示参数学习的过程。</li>
+      <li><b>结构</b>：2 个输入 → 2 个 sigmoid 隐层单元 → 1 个输出；隐层偏置初始化为 −1。</li>
+      <li><b>训练配置</b>：4 个样本全部训练；<b>二元交叉熵损失 + Adam 优化器，学习率 0.03，训练 300 轮</b>；输出概率 &gt; 0.5 判为 1。</li>
+      <li><b>原理四步</b>：前向计算 → 计算损失 → 反向传播求梯度 → Adam 依据梯度调整权重（梯度本身不更新）。</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ 原理 ============ -->
+<section id="theory">
+  <h2><span class="no">二</span>为什么二维分不开，加了隐层就行</h2>
+  <p class="h2sub">先说人话，再给严谨版；结构图放在中间当"地图"。</p>
+
+  <div class="pair">
+    <div class="side">
+      <span class="tag">我先这么理解</span>
+      <p>像操场上四个人站成正方形，<b>对角的两个人是一队</b>（00 和 11 一队，01 和 10 一队）。
+      不管警戒线怎么拉直，总有一队被劈成两半——所以一条线注定不够。</p>
+    </div>
+    <div class="side formal">
+      <span class="tag">教材的严谨说法</span>
+      <p>存在 w、b 使得 w·x+b&gt;0 判为 1，这叫<b>线性可分</b>。XOR 的四个样本不满足该条件，
+      这证明了<b>单层感知机无法解决异或问题</b>（Minsky 与 Papert，1969）。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tape"></span>
+    <p style="text-align:center;font-weight:700;letter-spacing:.1em">2-2-1 网络结构（与老师 PPT 一致）</p>
+    <svg style="display:block;margin:6px auto 0;max-width:100%" width="560" height="252" viewBox="0 0 560 252" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="2-2-1 网络结构图">
+      <line x1="100" y1="86" x2="290" y2="76" stroke="#4a4a4a" stroke-width="1.6"/>
+      <line x1="100" y1="86" x2="290" y2="176" stroke="#4a4a4a" stroke-width="1.6"/>
+      <line x1="100" y1="186" x2="290" y2="76" stroke="#4a4a4a" stroke-width="1.6"/>
+      <line x1="100" y1="186" x2="290" y2="176" stroke="#4a4a4a" stroke-width="1.6"/>
+      <line x1="290" y1="76" x2="470" y2="126" stroke="#141414" stroke-width="2.2"/>
+      <line x1="290" y1="176" x2="470" y2="126" stroke="#141414" stroke-width="2.2"/>
+      <circle cx="100" cy="86" r="27" fill="#fff" stroke="#141414" stroke-width="2"/>
+      <circle cx="100" cy="186" r="27" fill="#fff" stroke="#141414" stroke-width="2"/>
+      <circle cx="290" cy="76" r="27" fill="#efedea" stroke="#141414" stroke-width="2"/>
+      <circle cx="290" cy="176" r="27" fill="#efedea" stroke="#141414" stroke-width="2"/>
+      <circle cx="470" cy="126" r="27" fill="#141414" stroke="#141414" stroke-width="2"/>
+      <text x="100" y="92" text-anchor="middle" font-size="16" fill="#141414">x₁</text>
+      <text x="100" y="192" text-anchor="middle" font-size="16" fill="#141414">x₂</text>
+      <text x="290" y="82" text-anchor="middle" font-size="14" fill="#141414">h₁</text>
+      <text x="290" y="182" text-anchor="middle" font-size="14" fill="#141414">h₂</text>
+      <text x="470" y="132" text-anchor="middle" font-size="15" fill="#ffffff">y</text>
+      <text x="100" y="234" text-anchor="middle" font-size="13" fill="#4a4a4a">输入层</text>
+      <text x="290" y="234" text-anchor="middle" font-size="13" fill="#4a4a4a">隐层（sigmoid）</text>
+      <text x="470" y="234" text-anchor="middle" font-size="13" fill="#4a4a4a">输出（sigmoid）</text>
+      <text x="382" y="98" font-size="12.5" fill="#141414">≈ OR</text>
+      <text x="382" y="162" font-size="12.5" fill="#141414">≈ AND</text>
+    </svg>
+  </div>
+
+  <div class="pair">
+    <div class="side">
+      <span class="tag">我先这么理解</span>
+      <p>隐层就是那个"搬位置"的步骤：h₁ 管的是"有没有一个是 1"（近似 <b>OR</b>），
+      h₂ 管的是"是不是两个都是 1"（近似 <b>AND</b>）。搬完之后，01 和 10 挤到一起去了，
+      00 和 11 待在对角——再拉一条线，轻松分开。</p>
+    </div>
+    <div class="side formal">
+      <span class="tag">教材的严谨说法</span>
+      <p>隐层实现了一次<b>特征变换</b> φ：把输入 (x₁,x₂) 映射为 (h₁,h₂)。在 φ 诱导的新空间中，
+      两类样本变得<b>线性可分</b>。这就是"多层"的价值——<b>隐藏层把输入组合成新特征，使不可线性分离变为可分</b>。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tape r"></span>
+    <p>本次训练学到的映射结果（4 个点在新空间里的"座位"）：</p>
     <table>
       <tr><th>输入 x₁x₂</th><th>h₁（≈OR）</th><th>h₂（≈AND）</th><th>y</th><th>新位置</th></tr>
-      <tr><td>00</td><td>0.06</td><td>0.00</td><td>0</td><td>左下角</td></tr>
-      <tr><td>01</td><td>0.96</td><td>0.07</td><td>1</td><td>右下角</td></tr>
-      <tr><td>10</td><td>0.98</td><td>0.07</td><td>1</td><td>右下角</td></tr>
-      <tr><td>11</td><td>1.00</td><td>0.93</td><td>0</td><td>右上角</td></tr>
+      <tr><td>00</td><td>0.06</td><td>0.00</td><td>0</td><td>左下</td></tr>
+      <tr><td>01</td><td>0.96</td><td>0.07</td><td>1</td><td>右下</td></tr>
+      <tr><td>10</td><td>0.98</td><td>0.07</td><td>1</td><td>右下</td></tr>
+      <tr><td>11</td><td>1.00</td><td>0.93</td><td>0</td><td>右上</td></tr>
     </table>
-    <p>映射之后 y=0 的两个点待在左下、右上，y=1 的两个点挤在右下 —— <b>一条直线就能分开了</b>。这就是"隐藏层把输入组合成新特征，使不可线性分离变为可分"。</p>
-    <svg class="net" width="520" height="240" viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="2-2-1 网络结构图">
-      <line x1="90" y1="80" x2="260" y2="70" stroke="#99d6cf" stroke-width="2"/>
-      <line x1="90" y1="80" x2="260" y2="160" stroke="#99d6cf" stroke-width="2"/>
-      <line x1="90" y1="170" x2="260" y2="70" stroke="#99d6cf" stroke-width="2"/>
-      <line x1="90" y1="170" x2="260" y2="160" stroke="#99d6cf" stroke-width="2"/>
-      <line x1="260" y1="70" x2="420" y2="115" stroke="#0d9488" stroke-width="2.5"/>
-      <line x1="260" y1="160" x2="420" y2="115" stroke="#0d9488" stroke-width="2.5"/>
-      <circle cx="90" cy="80" r="26" fill="#f0f9ff" stroke="#0284c7" stroke-width="2.5"/>
-      <circle cx="90" cy="170" r="26" fill="#f0f9ff" stroke="#0284c7" stroke-width="2.5"/>
-      <circle cx="260" cy="70" r="26" fill="#f0fdfa" stroke="#0d9488" stroke-width="2.5"/>
-      <circle cx="260" cy="160" r="26" fill="#f0fdfa" stroke="#0d9488" stroke-width="2.5"/>
-      <circle cx="420" cy="115" r="26" fill="#f0fdfa" stroke="#0d9488" stroke-width="2.5"/>
-      <text x="90" y="86" text-anchor="middle" font-size="15" fill="#0f172a" font-weight="600">x₁</text>
-      <text x="90" y="176" text-anchor="middle" font-size="15" fill="#0f172a" font-weight="600">x₂</text>
-      <text x="260" y="76" text-anchor="middle" font-size="13" fill="#0f172a" font-weight="600">h₁</text>
-      <text x="260" y="166" text-anchor="middle" font-size="13" fill="#0f172a" font-weight="600">h₂</text>
-      <text x="420" y="121" text-anchor="middle" font-size="14" fill="#0f172a" font-weight="600">y</text>
-      <text x="90" y="222" text-anchor="middle" font-size="13" fill="#475569">输入层</text>
-      <text x="260" y="222" text-anchor="middle" font-size="13" fill="#475569">隐层（sigmoid）</text>
-      <text x="420" y="222" text-anchor="middle" font-size="13" fill="#475569">输出（sigmoid）</text>
-      <text x="340" y="92" font-size="11.5" fill="#0d9488">≈ OR</text>
-      <text x="340" y="150" font-size="11.5" fill="#0d9488">≈ AND</text>
-    </svg>
-    <p style="text-align:center;color:#475569;font-size:.87rem">图 0 · 本次实现的 2-2-1 网络结构（与老师 PPT 一致）</p>
+    <p style="font-size:.93rem;color:var(--ink-2)">输出层在这个新空间里学到的判别线（虚线）见下方图 2(b)：y=0 的两个空心圈在线的同一侧，y=1 的实心点在另一侧。</p>
   </div>
 </section>
 
-<!-- ================= 实现 ================= -->
+<!-- ============ 实现 ============ -->
 <section id="code">
-  <h2>三、两种实现</h2>
+  <h2><span class="no">三</span>两种实现</h2>
+  <p class="h2sub">NumPy 手写版用来"看清"每一步，PyTorch 版对照老师 PPT 的框架写法。</p>
 
   <div class="card">
-    <h3>3.1 NumPy 手写版（真正"看见"反向传播）</h3>
-    <p>为了把"参数是怎么学出来的"看清楚，我先用 NumPy 把前向传播、损失、反向传播、Adam 更新一步步手写出来。核心循环如下（完整代码见 <code class="inline">mlp_xor_numpy.py</code>）：</p>
+    <span class="tape"></span>
+    <h3>3.1 NumPy 手写版</h3>
+    <p>前向传播、损失、反向传播、Adam 更新全部手写（完整代码见 <code class="inline">mlp_xor_numpy.py</code>）：</p>
 <pre># ---- 前向传播：输入沿连接权重层层计算 ----
 z1 = X @ W1 + b1          # 隐层加权输入
 h  = sigmoid(z1)          # 隐层特征 (h1, h2)
@@ -175,7 +309,7 @@ y_pred = sigmoid(h @ W2 + b2)   # 输出概率
 loss = -mean(y*log(p) + (1-y)*log(1-p))
 
 # ---- 反向传播：链式法则，求各层权重对损失的影响 ----
-d_z2 = (y_pred - y) / N          # BCE + sigmoid 的梯度
+d_z2 = (y_pred - y) / N          # BCE + sigmoid 的梯度恰好是 (预测 - 真实)
 d_W2 = h.T @ d_z2                # 输出层权重梯度
 d_z1 = (d_z2 @ W2.T) * h * (1-h) # sigmoid 导数 h(1-h)
 d_W1 = X.T @ d_z1                # 隐层权重梯度
@@ -186,8 +320,8 @@ param -= lr · m̂ / (√v̂ + ε)</pre>
   </div>
 
   <div class="card">
-    <h3>3.2 PyTorch 版（对照老师 PPT 第 88 页的写法）</h3>
-    <p>再用老师课上演示的框架思路写了一遍，前向传播手工展开，训练交给自动微分（完整代码见 <code class="inline">mlp_xor_pytorch.py</code>）：</p>
+    <span class="tape r"></span>
+    <h3>3.2 PyTorch 版（对照老师 PPT 第 88 页）</h3>
 <pre>W1 = torch.nn.Parameter(torch.randn(2, 2))
 b1 = torch.nn.Parameter(torch.tensor([-1., -1.]))  # 隐层偏置初始 -1
 W2 = torch.nn.Parameter(torch.randn(2, 1))
@@ -206,19 +340,38 @@ for epoch in range(1, 301):
     <div class="kv">
       <div class="item"><b>2-2-1</b><span>网络结构</span></div>
       <div class="item"><b>BCE + Adam</b><span>损失 / 优化器</span></div>
-      <div class="item"><b>lr = 0.03</b><span>学习率</span></div>
-      <div class="item"><b>300 轮</b><span>训练轮数</span></div>
-      <div class="item"><b>&gt; 0.5 → 1</b><span>分类阈值</span></div>
+      <div class="item"><b>0.03</b><span>学习率</span></div>
+      <div class="item"><b>300</b><span>训练轮数</span></div>
+      <div class="item"><b>&gt;0.5 → 1</b><span>分类阈值</span></div>
     </div>
-    <div class="tip">两个版本的超参数完全一致（老师 PPT 的要求）。NumPy 版的 Adam、反向传播都是手写的，PyTorch 版则用 <code class="inline">loss.backward()</code> 自动求梯度 —— 跑出来的结果一致，互相验证。</div>
+    <div class="tip">两个版本超参数完全一致。NumPy 版连 Adam 都是手写的，PyTorch 版用 <code class="inline">loss.backward()</code> 自动求梯度——结果一致，互相验证。</div>
+  </div>
+
+  <div class="card">
+    <span class="tape"></span>
+    <h3>3.3 在 PyCharm 里跑（我的 Python 课就用它）</h3>
+    <p>代码就是普通的 Python 脚本，PyCharm 完全可以跑，步骤如下：</p>
+    <ol class="steps">
+      <li><b>新建项目</b>：File → New Project，选一个文件夹，解释器选本机的 Python 3.13。</li>
+      <li><b>放入代码</b>：把 <code class="inline">mlp_xor_numpy.py</code>（和 <code class="inline">mlp_xor_pytorch.py</code>）拖进项目目录。</li>
+      <li><b>装依赖</b>：打开 PyCharm 底部的 Terminal，输入 <code class="inline">pip install numpy matplotlib</code>（跑 PyTorch 版再加 <code class="inline">pip install torch</code>）。也可以在 Settings → Project → Python Interpreter 里点 ➕ 搜索安装。</li>
+      <li><b>运行</b>：右键代码编辑区 → <b>Run 'mlp_xor_numpy'</b>，控制台会打印每个样本的预测概率。</li>
+      <li><b>看图</b>：运行结束，<code class="inline">images/</code> 文件夹里会自动生成 5 张黑白可视化图（想弹窗看图，把脚本里 <code class="inline">matplotlib.use("Agg")</code> 那行删掉即可）。</li>
+      <li><b>改着玩</b>：试着改 <code class="inline">np.random.seed(0)</code> 的数字，感受一下"换个起点掉进局部最优"是什么样子。</li>
+    </ol>
+    <figure style="margin-top:18px">
+      <img src="images/pycharm_run.png" alt="PyCharm 运行效果">
+      <figcaption><b>附图 · 在 PyCharm 里跑起来的样子</b> —— 上半部分是 <code class="inline">mlp_xor_numpy.py</code> 的核心代码（前向传播 → 损失 → 反向传播 → Adam 更新），下半部分是控制台真实输出：4 个样本全部判对，最终准确率 100%、损失 0.0382，进程退出代码为 0。</figcaption>
+    </figure>
   </div>
 </section>
 
-<!-- ================= 结果 ================= -->
+<!-- ============ 结果 ============ -->
 <section id="result">
-  <h2>四、训练结果</h2>
+  <h2><span class="no">四</span>训练结果</h2>
+  <p class="h2sub">300 轮后，4 个样本全部判对。</p>
   <div class="card">
-    <p>训练 300 轮后，4 个样本全部判对：</p>
+    <span class="tape r"></span>
     <table>
       <tr><th>输入 x₁x₂</th><th>真实 y</th><th>预测概率</th><th>判类（&gt;0.5 为 1）</th></tr>
       <tr><td>00</td><td>0</td><td>0.0431</td><td>0 ✓</td></tr>
@@ -234,68 +387,113 @@ for epoch in range(1, 301):
   </div>
 </section>
 
-<!-- ================= 可视化 ================= -->
+<!-- ============ 可视化 ============ -->
 <section id="viz">
-  <h2>五、可视化</h2>
+  <h2><span class="no">五</span>可视化</h2>
+  <p class="h2sub">全部图片由 <code class="inline">mlp_xor_numpy.py</code> 自动生成，黑白印刷风：实心点 = y1，空心圈 = y0。</p>
 
   <div class="card">
-    <h3>5.1 损失下降曲线</h3>
+    <span class="tape"></span>
     <figure>
       <img src="images/loss_curve.png" alt="损失曲线">
-      <figcaption>图 1 · 二元交叉熵损失随训练轮数下降：前期快速下降，后期逐渐收敛到 0.038，说明预测概率越来越接近真实标签。</figcaption>
+      <figcaption><b>图 1 · 损失下降曲线</b> —— 二元交叉熵损失随训练轮数下降：前期快速下降，后期逐渐收敛到 0.038，说明预测概率越来越接近真实标签。</figcaption>
     </figure>
   </div>
 
   <div class="card">
-    <h3>5.2 原始空间 → 隐层特征空间：XOR 变得可分</h3>
+    <span class="tape r"></span>
     <figure>
       <img src="images/hidden_space.png" alt="隐层特征空间映射">
-      <figcaption>图 2 · 左：原始输入空间 (x₁,x₂)，同类点对角交错，一条直线分不开；右：隐层把 4 个点映射到 (h₁,h₂) 后，绿色虚线（输出层学到的分类线）把 y=0 和 y=1 干净地分开。这就是多层网络解决 XOR 的核心原理。</figcaption>
+      <figcaption><b>图 2 · 原始空间 → 隐层特征空间</b> —— 左（a）：原始输入空间，同类点对角交错，一条直线分不开；右（b）：隐层把 4 个点映射到 (h₁,h₂) 后，输出层学到的虚线把 y=0（空心圈）和 y=1（实心点）干净地分开。这就是本作业的核心原理。</figcaption>
     </figure>
   </div>
 
   <div class="card">
-    <h3>5.3 输入平面上的决策边界</h3>
+    <span class="tape"></span>
     <figure>
       <img src="images/decision_boundary.png" alt="决策边界">
-      <figcaption>图 3 · 把整个输入平面逐点送进训练好的网络并涂上输出概率：中间红色带状区域预测"1"，两角绿色区域预测"0"，黑色等高线（P=0.5）形成了两条折线围出的"对角带"—— 单个感知机只能画一条直线，而 MLP 学到了非线性的边界。</figcaption>
+      <figcaption><b>图 3 · 输入平面上的决策边界</b> —— 把整个平面逐点送进训练好的网络并按输出概率涂上深浅：中间深色带预测"1"，两角浅色区预测"0"，黑色等高线（P=0.5）形成两条折线围出的"对角带"。单个感知机只能画一条直线，而 MLP 学到了非线性边界。</figcaption>
     </figure>
   </div>
 
   <div class="card">
-    <h3>5.4 隐层特征空间随训练的演化</h3>
+    <span class="tape r"></span>
     <figure>
       <img src="images/hidden_evolution.png" alt="隐层空间演化">
-      <figcaption>图 4 · 第 1、5、20、100、300 轮时 4 个样本在 (h₁,h₂) 空间中的位置：一开始乱作一团，随训练推进，y=1 的两点逐渐靠拢、y=0 的两点逐渐拉开到对角，最终形成线性可分的格局。"特征是被慢慢学出来的"在这里看得见。</figcaption>
+      <figcaption><b>图 4 · 隐层特征空间随训练的演化</b> —— 第 1、5、20、100、300 轮时 4 个样本在 (h₁,h₂) 空间中的位置：一开始乱作一团，随训练推进，y=1 的两点逐渐靠拢、y=0 的两点逐渐拉开到对角。"特征是被慢慢学出来的"在这里看得见。</figcaption>
     </figure>
   </div>
 
   <div class="card">
-    <h3>5.5 准确率曲线</h3>
+    <span class="tape"></span>
     <figure>
       <img src="images/accuracy_curve.png" alt="准确率曲线">
-      <figcaption>图 5 · 准确率随训练轮数变化：从 25%（全判错一类）很快跃升到 100% 并保持稳定。</figcaption>
+      <figcaption><b>图 5 · 准确率曲线</b> —— 从 25%（全判错一类）很快跃升到 100% 并保持稳定。</figcaption>
     </figure>
   </div>
 </section>
 
-<!-- ================= 踩坑 ================= -->
-<section id="pitfall">
-  <h2>六、踩坑记录</h2>
-  <div class="card">
-    <div class="warn"><b>坑：随机初始化踩到局部最优，准确率卡在 75%。</b><br>
-      第一轮实验用某个随机种子训练 300 轮后，(0,0)、(0,1)、(1,0) 全被判成 1，只有 (1,1) 判对 —— 准确率 75%，损失卡在 0.50 不再下降。这是 XOR 训练的经典现象：2-2-1 的小网络存在对称解 / 平坦区，某些初始值会让梯度走进"死角"出不来。</div>
-    <p>解决办法很简单：<b>换一个随机初始值（固定随机种子）再训练</b>。换了初始值后同一套超参数直接收敛到 100%。由此也更直观地体会到老师 PPT 里"参数更新依赖梯度，而初始值决定从哪里出发"这句话 —— 误差曲面不是一碗平水，起点很重要。</p>
-    <div class="tip"><b>收获：</b>① 隐层的价值在于"造新特征"，把不可分变成可分；② 反向传播 = 链式法则逐层回传，BCE + sigmoid 的输出层梯度恰好是 (预测 − 真实)，形式非常干净；③ Adam 同时用一阶/二阶矩自适应调步长，比固定步长稳；④ 训练不收敛时先怀疑初始化，再怀疑超参数。</div>
+<!-- ============ 两种理解 ============ -->
+<section id="views">
+  <h2><span class="no">六</span>一个新生的理解 × 教材的说法</h2>
+  <p class="h2sub">把这门课里我最想弄懂的几个概念，用自己的话和教材的话各说一遍。</p>
+
+  <div class="pair">
+    <div class="side">
+      <span class="tag">关于"梯度"</span>
+      <p>梯度像下山时脚底的坡度：坡往哪边陡，就往反方向迈一步。300 轮训练，就是沿着坡走了 300 小步，最后停在谷底（损失最小处）。</p>
+    </div>
+    <div class="side formal">
+      <span class="tag">教材的严谨说法</span>
+      <p>梯度是损失对各参数的偏导向量，指向损失上升最快的方向；<b>梯度下降</b>沿其反方向以学习率为步长更新参数。反向传播用链式法则高效求得各层梯度。</p>
+    </div>
+  </div>
+
+  <div class="pair">
+    <div class="side">
+      <span class="tag">关于"为什么要训练 300 轮"</span>
+      <p>一轮只把 4 个样本看一遍，权重只挪一点点。像捏橡皮泥，捏一下变一点，捏 300 下才成型——但捏过头也会糊，所以轮数要合适。</p>
+    </div>
+    <div class="side formal">
+      <span class="tag">教材的严谨说法</span>
+      <p>每轮（epoch）完整遍历一次训练集并按梯度更新参数。迭代次数不足则欠拟合；本例 300 轮时损失已收敛到 0.038，继续训练收益很小。</p>
+    </div>
+  </div>
+
+  <div class="pair">
+    <div class="side">
+      <span class="tag">关于"输出 &gt; 0.5 判为 1"</span>
+      <p>输出层吐出来的其实是一个"把握有多大"的百分数，0.5 就相当于"五五开"的分界线：过了就投"是"，没过就投"否"。</p>
+    </div>
+    <div class="side formal">
+      <span class="tag">教材的严谨说法</span>
+      <p>sigmoid 输出可解释为 P(y=1|x)。以 0.5 为阈值做二分类决策，等价于取后验概率更大的类别。</p>
+    </div>
   </div>
 </section>
 
-<footer>
-  <p>人工智能课程 · 作业二 · MLP 学习参数的实现与可视化</p>
-  <p>代码与图表由本人学习制作，Agent 辅助排版与调试；实现、分析与判断均由本人完成。</p>
-  <p><a href="../" style="color:#0284c7">← 返回作业一</a></p>
-</footer>
+<!-- ============ 踩坑 ============ -->
+<section id="pitfall">
+  <h2><span class="no">七</span>踩坑记录</h2>
+  <div class="card">
+    <span class="tape"></span>
+    <div class="warn"><b>坑：随机初始化踩到局部最优，准确率卡在 75%。</b><br>
+      第一次实验里，(0,0)、(0,1)、(1,0) 全被判成 1，只有 (1,1) 判对——准确率 75%，损失卡在 0.50 不再下降。
+      这是 2-2-1 小网络的经典现象：某些初始值会让梯度走进"死角"出不来。</div>
+    <p>解决办法：<b>换一个随机初始值再训练</b>（固定随机种子保证可复现）。同一套超参数直接收敛到 100%。
+    由此体会到老师 PPT 里"参数更新依赖梯度"的另一面——<b>初始值决定从哪里出发，误差曲面不是一碗平水</b>。</p>
+    <div class="tip"><b>收获：</b>① 隐层的价值在于"造新特征"，把不可分变成可分；② BCE + sigmoid 的输出层梯度恰好是（预测 − 真实），形式非常干净；③ Adam 同时用一阶/二阶矩自适应调步长，比固定步长稳；④ 训练不收敛时先怀疑初始化，再怀疑超参数。</div>
+  </div>
+</section>
 
 </div>
+
+<footer>
+  <div class="tape" style="left:50%;margin-left:-55px;top:-14px"></div>
+  <p>人工智能课程 · 作业二 · MLP 学习参数的实现与可视化</p>
+  <p>代码与图表由本人学习制作，Agent 辅助排版与调试；实现、分析与判断均由本人完成。</p>
+  <p style="margin-top:8px"><a href="../">← 返回作业一 · Agent 使用情况汇报</a></p>
+</footer>
+
 </body>
 </html>

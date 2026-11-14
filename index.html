@@ -369,6 +369,30 @@ body {
   html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }
 }
+/* ============ 作业入口按钮 ============ */
+.hw-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--teal-deep);
+  font-size: .93rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 8px 20px -12px rgba(13,148,136,.35);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.hw-entry:hover {
+  transform: translateY(-2px);
+  border-color: var(--teal);
+  box-shadow: 0 10px 26px -12px rgba(13,148,136,.5);
+}
+.hw-entry .arrow { color: var(--teal); font-weight: 700; }
+
 </style>
 </head>
 
@@ -391,6 +415,11 @@ body {
     <span class="dot"></span>
     <span>2026 年 10 月</span>
   </div>
+
+  <a class="hw-entry" href="hw2-mlp/">
+    作业二 · MLP 学习参数的实现与可视化
+    <span class="arrow">→</span>
+  </a>
 </header>
 
 <main class="wrap">

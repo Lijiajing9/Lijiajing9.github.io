@@ -345,6 +345,10 @@ for epoch in range(1, 301):
       <div class="item"><b>&gt;0.5 → 1</b><span>分类阈值</span></div>
     </div>
     <div class="tip">两个版本超参数完全一致。NumPy 版连 Adam 都是手写的，PyTorch 版用 <code class="inline">loss.backward()</code> 自动求梯度——结果一致，互相验证。</div>
+    <figure style="margin-top:18px">
+      <img src="images/pycharm_run_torch.png" alt="PyCharm 运行 PyTorch 版效果">
+      <figcaption><b>附图 · PyTorch 版在 PyCharm 里跑起来的样子</b> —— 上半部分是与老师 PPT 一致的 PyTorch 实现（<code class="inline">Parameter</code> 手写前向 + <code class="inline">BCELoss</code> + <code class="inline">Adam</code>），下半部分是控制台真实输出：第 50 轮时还只有 75%（正好是踩坑记录里说的局部最优阶段），第 100 轮起稳定 100%，最终损失 0.0322。</figcaption>
+    </figure>
   </div>
 
   <div class="card">
